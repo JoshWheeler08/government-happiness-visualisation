@@ -4,7 +4,7 @@ An interactive web-based data visualization exploring the relationship between p
 
 ![Choropleth Map Visualization](images/mercator-projection.png)
 
-## 🎓 About This Project
+## About This Project
 
 This interactive data visualization project combines data from the **World Happiness Report** and the **World Governance Indicators** to investigate whether public perception of government effectiveness correlates with personal happiness levels.
 
@@ -188,11 +188,13 @@ Based on the visualization analysis:
 ### Custom Color Scale
 
 ![Custom Color Visualization](images/mercator-projection-colour.png)
+
 _Users can customize the color scale for accessibility or personal preference_
 
 ### Globe View
 
 ![Globe Projection View](images/globe-view.png)
+
 _Alternative globe projection for better geographic context_
 
 ## 📄 License
