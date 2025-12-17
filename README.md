@@ -2,7 +2,7 @@
 
 An interactive web-based data visualization exploring the relationship between public perception of government effectiveness and personal happiness across countries and time periods (2005-2021).
 
-![Project Screenshot](docs/images/choropleth-map.png)
+![Choropleth Map Visualization](images/mercator-projection.png)
 
 ## 🎓 About This Project
 
@@ -17,15 +17,23 @@ This interactive data visualization project combines data from the **World Happi
 - **Detailed Country Views**: In-depth analysis with infographics, treemaps, and line graphs
 - **Responsive Design**: Works across different screen sizes
 
-## 📊 Research Question
+## 📊 Research Questions
 
-> "Does the public's perception of the effectiveness of its government correlate with their personal happiness?"
+This visualization was designed to answer two key questions:
+
+> **Primary Question:** "Does the public's perception of the effectiveness of its government correlate with their personal happiness?"
+
+> **Secondary Question:** "Can we identify geographical trends in these correlations across different regions?"
+
+### Methodology
 
 The visualization maps the difference between normalized Government Effectiveness (GE) and Life Ladder (LL) scores, producing values in the [-1, 1] range where:
 
 - **0** indicates strong positive correlation
 - **-1** indicates high government effectiveness but low happiness
 - **+1** indicates low government effectiveness but high happiness
+
+By exploring the interactive choropleth map and country-specific details, users can discover patterns and regional trends that answer these research questions.
 
 ## 🚀 Quick Start
 
@@ -175,13 +183,21 @@ Based on the visualization analysis:
 - Data processing is repeated on both pages due to JS limitations
 - Future improvement: Combine pages into unified dashboard
 
+## 📸 Additional Screenshots
+
+### Custom Color Scale
+
+![Custom Color Visualization](images/mercator-projection-colour.png)
+_Users can customize the color scale for accessibility or personal preference_
+
+### Globe View
+
+![Globe Projection View](images/globe-view.png)
+_Alternative globe projection for better geographic context_
+
 ## 📄 License
 
 MIT License - See LICENSE file for details
-
-## 👥 Author
-
-**Joshua Wheeler**
 
 ## 🙏 Acknowledgments
 
@@ -189,10 +205,6 @@ MIT License - See LICENSE file for details
 - World Bank Governance Indicators team
 - Mapbox for map infrastructure
 - D3.js community
-
-## 📧 Contact
-
-For questions or feedback about this project, please open an issue on GitHub.
 
 ---
 
