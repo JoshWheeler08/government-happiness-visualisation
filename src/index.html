@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <title>Government Effectiveness & Happiness Visualization</title>
+  </head>
+
+  <body>
+    
+    <div>
+
+        <h4>Government Effectiveness & Happiness Data Visualization</h4>
+        <p><em>An interactive exploration of the relationship between public perception of government and personal happiness</em></p>
+
+        <p>
+          In this practical, we wanted to investigate how the public's perception of its government can impact their personal 
+          happiness and to explore whether these results differ over geographical regions. To do this, we have combined the World Happiness Report* 
+          - a dataset which measures the estimated happiness of a population using data attributes such as 'Log GDP', 
+          'Freedom to make choices' and 'Health life expectancy' - with the World Governance Indicators dataset*. 
+          The WGI project reports aggregate and individual governance indicators for over 200 countries, 
+          which can be used to summarise the quality of a government. Similar to the Happiness report, 
+          it has multiple dimensions for measuring the quality of governance of a government,
+           which includes 'Control of Corruption', 'Political Stability and Absense of violence/terrorism' and 'Government effectiveness'. 
+        
+          <br>
+          <br>
+          
+          Using these two datasets in conjunction with the D3.js library, we hope to produce an information visualisation that can support the project's aim 
+          of answering <b>"does the public's perception of the effectiveness of its government 
+          correlate with their personal happiness"? Furthermore, through the visualisation can we begin to identify geographical trends between these results?</b>
+
+          <br>
+          <br>
+
+          To do this, we started by designing a choropleth map to provide an overview of the happiness and governance data, 
+          which compares the Happiness report's 'Life Ladder' attribute with the 'Government Effectiveness' attribute estimate in the WGI dataset. 
+          The life ladder attribute is a normalised 1-10 scale where respondents were asked to rate their life from the worst (0) to best possible (10)
+           - the average value for each country was recoreded. The 'Government effectiveness' attribute estimates the average citizen's perception of the 
+           quality of public services, independence of civil service from political pressures, and government credibility. 
+           To visualise this information, we apply a diverging colour scale to each country, mapping the difference between their normalised government 
+           effectiveness estimate and the normalised average life ladder value (gov_effect - life_ladder). 
+           This produces values within the range [-1,1], where 0 indicates a strong positive correlation between the two data attributes, 
+           and -1/1 indicate strong negative relationships; where '1' reflects a strong public perception of government effectiveness but 
+           low average life ladder value, and '-1' indicates a low public perception of government effectiveness but high average life ladder value.
+
+          <br>
+          <br>
+          
+          Since both the Happiness report and WGI project collected this data each year, beginning from 2005 and 1996 respectively until 2021,
+           we have also provided an animation tool to enable the user to exploring changes in the correlation value over time. 
+           To view more data attributes about a country from each dataset, we have linked the choropleth visualisation to a second webpage, 
+           which can be accessed by clicking on a country on the map. This secondary page supports a more detailed analysis of the two datasets 
+           - for the selected country - using infographics, circular treemaps and a customisable linegraph.
+
+           <br>
+           <br>
+           
+          <b>To access the web-based visualisation and for more information about these datasets(*), please visit this <a href="html/homepage.html">page </b></a>.
+        </p>
+
+        <br>
+    </div>
+
+  </body>
+
+</html>

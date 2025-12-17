@@ -1,0 +1,40 @@
+
+.outer{
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    height: 500px;
+}
+
+#map{
+    position: absolute;
+    z-index: 0;
+    width: 100%;
+    height: 500px;
+    opacity: 1;
+}
+
+#map_backup{
+    position: absolute;
+    z-index: 0;
+    width: 100%;
+    height: 500px;
+    opacity: 0;
+}
+
+
+.mapboxgl-popup {
+    max-width: 400px;
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    opacity: 0.8;
+}
+
+svg{
+    width: 100%;
+    height: 100%;
+}
+
+.colour-scale-headers{
+    font-size: '12px';
+    margin-bottom: '0px';
+}

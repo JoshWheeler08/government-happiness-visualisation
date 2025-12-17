@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- D3.js and Map box library !-->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+    <!-- CSS Link -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="../css/homepage.css" />
+
+    <!-- Font awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- Configuration -->
+    <script src="../js/config.js"></script>
+
+    <!-- Title shown in Tab -->
+    <title>Government Effectiveness & Happiness Visualization</title>
+
+    <style></style>
+  </head>
+
+  <body>
+    <div class="container-fluid m-5">
+      <!-- Title -->
+      <div class="row justify-content-center">
+        <div class="col-8">
+          <h3>
+            Exploring Relationships between Public Perception of the Government
+            and Personal Happiness
+          </h3>
+          <small class="text-muted"> Interactive Data Visualization </small>
+        </div>
+      </div>
+
+      <!-- Display Map -->
+      <div class="row justify-content-center mt-5 mb-4">
+        <!-- User Dropdowns -->
+        <div class="col-1">
+          <div class="row justify-content-center mt-5 mb-5">
+            <div class="col-12">
+              <div id="max_value_colour" class="dropdown show">
+                <label for="favcolor">Select Maximum Colour: </label>
+                <input
+                  type="color"
+                  id="favcolor"
+                  name="favcolor"
+                  value="#00ff00"
+                  onchange="() => {console.log('nice')}"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="row justify-content-center mt-5 mb-5">
+            <div class="col-12">
+              <label for="favcolor">Select Minimum Colour: </label>
+              <div id="min_value_colour" class="dropdown show">
+                <input
+                  type="color"
+                  id="favcolor"
+                  name="favcolor"
+                  value="#ff0000"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-7">
+          <div class="outer">
+            <div id="map"></div>
+            <div id="map_backup"></div>
+          </div>
+        </div>
+
+        <!-- Colour Scale (SVG): reused code from https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient -->
+        <div class="col-1 justify-content-center">
+          <!-- Top Label -->
+          <div class="row justify-content-center p-0">
+            <div class="col-12 justify-content-center">
+              <p style="font-size: 14px">
+                Negative Correlation<br /><b>(+1)</b>
+              </p>
+            </div>
+          </div>
+
+          <!-- Colour Scale -->
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <svg
+                viewBox="0 0 10 10"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                id="colour_scale"
+              >
+                <defs>
+                  <linearGradient
+                    id="myGradient"
+                    gradientTransform="rotate(90)"
+                  >
+                    <stop id="min_stop" offset="0%" stop-color="green" />
+                    <stop id="mid_stop" offset="50%" stop-color="white" />
+                    <stop id="max_stop" offset="100%" stop-color="red" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Bottom Label -->
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <p style="font-size: 14px" class="colour-scale-headers mt-1">
+                <b>(-1)</b><br />Negative Correlation
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Switch Map View -->
+      <div class="row justify-content-center">
+        <div class="col-7"></div>
+        <div class="col-5 justify-content-center text-center">
+          <button class="btn btn-dark" id="mapViewSelector">
+            See Globe View <i class="fa fa-globe" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Timeline Animation Year -->
+      <div class="row justify-content-center">
+        <div class="col-7 text-center">
+          <h2 class="display-5" id="current_year"></h2>
+        </div>
+      </div>
+
+      <!-- Timeline Animation -->
+      <div class="row justify-content-center mb-5">
+        <div class="col-2 text-right">
+          <button
+            type="button"
+            id="back_btn"
+            class="btn btn-dark mb-1 animation_btns"
+          >
+            <i class="fa fa-backward" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="col-2 text-center">
+          <button type="button" id="animate_btn" class="btn btn-dark mb-1">
+            Start Animation
+          </button>
+        </div>
+        <div class="col-2 float-left">
+          <button
+            type="button"
+            id="forward_btn"
+            class="btn btn-dark mb-1 animation_btns"
+          >
+            <i class="fas fa-forward"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Explaination of Visualisation -->
+      <div class="row justify-content-center">
+        <div class="col-7 text-center mb-3 mt-1">
+          <h5 style="text-decoration: underline; margin-bottom: 15px">
+            <b>Welcome to our visualisation!</b>
+          </h5>
+          <p style="text-align: left; font-size: medium">
+            This choropleth map provides an overview of the Happiness Report and
+            WGI datasets (see table), which compares the WGI's
+            <b>'Estimated Government Effectiveness'</b> attribute with the
+            Happiness report's <b>'Life Ladder'</b> attribute. The life ladder
+            attribute is a normalised 1-10 scale where respondents were asked to
+            rate their life from worst (0) to best possible (10), with the
+            average value being calculated for each country. The 'Government
+            effectiveness' attribute estimates the average citizen's perception
+            of the quality of public services, independence of civil service
+            from political pressures, and government credibility.
+
+            <br />
+            <br />
+
+            To visualise this information, we apply a diverging colour scale to
+            each country, mapping the difference between their normalised
+            government effectiveness estimate and their normalised average life
+            ladder value
+            <b>(gov_effect - life_ladder)</b>. This produces values within the
+            [-1,1] range, where 0 indicates a strong positive correlation
+            between the two data attributes, and -1 or 1 indicate a strong
+            negative relationship. In the case of '1', it reflects a high public
+            perception of government effectiveness but low average life ladder
+            value, and '-1' indicates a low public perception of government
+            effectiveness but high average life ladder value.
+
+            <br />
+            <br />
+
+            We believe that these extreme values (-1/1) are of particular
+            interest because they reflect trends that differ from our
+            expectations (e.g. we expect an effective government to induce a
+            happy population), and so should be further investigated.
+          </p>
+        </div>
+      </div>
+
+      <!-- Link to Datasources -->
+      <div class="row justify-content-center">
+        <div class="col-8">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Dataset Name</th>
+                <th scope="col">Summary</th>
+                <th scope="col">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Happiness Report -->
+              <tr>
+                <th scope="row">1</th>
+                <td style="width: 20%">World Happiness Report</td>
+                <td style="width: 60%">
+                  The World Happiness Report is a publication that contains
+                  articles and rankings of national happiness, based on
+                  respondent ratings of their own lives, which the report also
+                  correlates with various (quality of) life factors (2005 -
+                  2021).
+
+                  <br /><br />
+
+                  <button
+                    type="button"
+                    class="btn btn-info mb-3"
+                    onclick="showHiddenAttributeTable('happiness_table')"
+                  >
+                    See Relevant Data Attributes
+                  </button>
+
+                  <table
+                    id="happiness_table"
+                    class="table table-striped mt-3 table-dark"
+                    style="display: none"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Attribute Name</th>
+                        <th scope="col">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Per Attribute -->
+                      <tr>
+                        <th scope="row">1</th>
+                        <td style="width: 30%">Life Ladder</td>
+                        <td style="width: 70%">
+                          A normalised 0-1 scale of worst to best possible life
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td style="width: 20%">
+                  <a
+                    href="https://worldhappiness.report/"
+                    class="btn btn-primary"
+                  >
+                    Go to Source
+                  </a>
+                </td>
+              </tr>
+
+              <!-- World Bank -->
+              <tr>
+                <th scope="row">2</th>
+                <td style="width: 20%">World Bank</td>
+                <td style="width: 60%">
+                  The Worldwide Governance Indicators (WGI) project reports
+                  aggregate and individual governance indicators for over 200
+                  countries and territories over the period 1996–2021, for six
+                  dimensions of governance.
+
+                  <br /><br />
+
+                  <button
+                    type="button"
+                    class="btn btn-info mb-3"
+                    onclick="showHiddenAttributeTable('world_bank_table')"
+                  >
+                    See Relevant Data Attributes
+                  </button>
+
+                  <table
+                    id="world_bank_table"
+                    class="table table-striped table-dark mt-3"
+                    style="display: none"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Attribute Name</th>
+                        <th scope="col">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Per Attribute -->
+                      <tr>
+                        <th scope="row">1</th>
+                        <td style="width: 30%">Government Effectiveness</td>
+                        <td style="width: 70%">
+                          Estimate of the perceptions of the quality of public
+                          services, the quality of the civil service and the
+                          degree of its independence from political pressures,
+                          the quality of policy formulation and implementation,
+                          and the credibility of the government's commitment to
+                          such policies. Normalised between 0 and 1.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td style="width: 20%">
+                  <a
+                    href="https://info.worldbank.org/governance/wgi/"
+                    class="btn btn-primary"
+                  >
+                    Go to Source
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Map Box Geoencoder -->
+    <!-- Load the `mapbox-gl-geocoder` plugin. -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css"
+      type="text/css"
+    />
+
+    <!-- JS Logic -->
+    <script
+      type="text/javascript"
+      src="../js/homepage/animation_event_handlers.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/homepage/chloropleth_map.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/homepage/data_cleaning.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/homepage/map_event_handler.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/homepage/colour_scale.js"
+    ></script>
+
+    <!-- Additional Helper Functions -->
+    <script>
+      // Toggle view of attribute table
+      function showHiddenAttributeTable(table_id) {
+        $(`#${table_id}`).toggle();
+      }
+
+      // How to properly round in JS - https://stackoverflow.com/questions/11832914/how-to-round-to-at-most-2-decimal-places-if-necessary
+      function roundTo2Dp(num) {
+        return Math.round((num + Number.EPSILON) * 100) / 100;
+      }
+    </script>
+
+    <!-- D3 Main -->
+    <script>
+      // Global Variables
+      const world_bank_data_path = "../data/world_bank.csv";
+      const happiness_data_path = "../data/WorldHappinessRaw.csv";
+
+      let happiness_data_by_year;
+      let world_bank_data_by_year;
+
+      let animation_started = false;
+      let animation_timer;
+
+      const MIN_YEAR = 2005;
+      const MAX_YEAR = 2021;
+
+      let target_year;
+      let target_year_date;
+      let current_year;
+      let max_year = new Date("2021");
+
+      let colour_scale;
+
+      // Begin to load in the datasets
+      let promises = [
+        d3.csv(world_bank_data_path, worldBankFilter),
+        d3.csv(happiness_data_path, happinessFilter),
+      ];
+
+      Promise.all(promises).then(ready, error);
+
+      // Process data
+      function ready(data) {
+        const world_bank_data = data[0];
+        const happiness_data = data[1];
+
+        // Further pre-processing
+
+        // Update dataset columns to match element columns
+        world_bank_data.columns = Object.keys(world_bank_data[0]);
+        happiness_data.columns = Object.keys(happiness_data[0]);
+
+        // Normalise the datasets
+        const normalised_world_bank_data = normaliseDataset(world_bank_data, 3); // miss out 'Country Name', 'Year' and 'Country Code'
+        const normalised_happiness_data = normaliseDataset(happiness_data, 2); // miss out 'Country Name' and 'year'
+
+        // Get unique countries list
+        let unique_countries_happiness_data = new Set(
+          Array.from(
+            d3.group(normalised_happiness_data, (d) => d["country_name"]).keys()
+          )
+        );
+        let unique_countries_world_bank_data = new Set(
+          Array.from(
+            d3
+              .group(normalised_world_bank_data, (d) => d["country_name"])
+              .keys()
+          )
+        );
+
+        // Find intersection
+        let intersection = new Set();
+        for (let country_name of unique_countries_happiness_data) {
+          if (unique_countries_world_bank_data.has(country_name)) {
+            intersection.add(country_name);
+          }
+        }
+
+        // Filter datasets for only shared country names
+        let filtered_world_bank_data = normalised_world_bank_data.filter(
+          (el) => {
+            return intersection.has(el["country_name"]);
+          }
+        );
+
+        let filtered_happiness_data = normalised_happiness_data.filter((el) => {
+          return intersection.has(el["country_name"]);
+        });
+
+        // ------- Visualisation
+
+        // Setup colour scale and its visualisation
+        let colour_map = ["red", "white", "green"];
+        colour_scale = createColourScale(colour_map);
+        visualiseChloroplethMap(
+          filtered_happiness_data,
+          filtered_world_bank_data
+        );
+        displayColourScale();
+
+        // ------ Add Colour Selector Event Listeners
+
+        d3.select(`#max_value_colour`).on("input", (e) => {
+          colour_map[2] = e.target.value;
+
+          // Create new colour scale and refresh visualisation
+          colour_scale = createColourScale(colour_map);
+          visualiseChloroplethMap(
+            filtered_happiness_data,
+            filtered_world_bank_data
+          );
+          displayColourScale();
+        });
+
+        d3.select(`#min_value_colour`).on("input", (e) => {
+          colour_map[0] = e.target.value;
+          console.log(colour_map);
+
+          // Create new colour scale and refresh visualisation
+          colour_scale = createColourScale(colour_map);
+          visualiseChloroplethMap(
+            filtered_happiness_data,
+            filtered_world_bank_data
+          );
+          displayColourScale();
+        });
+      }
+
+      // If loading the data fails
+      function error(error) {
+        console.log(error);
+      }
+    </script>
+  </body>
+</html>

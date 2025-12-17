@@ -1,0 +1,39 @@
+circle {
+    fill: white;
+    opacity: 0.5;
+    stroke: black;
+}
+.div
+{
+    font-size: 4.5vw;
+}
+.text
+{
+    font-size: 4.5vw;
+}
+.line
+{
+    fill: none;
+    stroke-width: 0.1vw;
+    stroke: black;
+}
+
+h1{
+    color: white;
+    font-weight: bold;
+}
+
+.smily_face .flag{
+    position: relative;
+}
+
+.round{
+    border-radius: 20%;
+}
+
+.treeMap {
+    display: block;
+    /* margin: auto; */
+}
+
+

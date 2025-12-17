@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Load D3 Library & Bootstrap -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+
+    <!-- Webpage Title -->
+    <title>Country Details - Government & Happiness Visualization</title>
+
+    <!-- CSS Link -->
+    <link rel="stylesheet" href="../css/individualCountry.css" />
+
+    <style></style>
+  </head>
+
+  <body
+    style="
+      background-image: linear-gradient(to bottom right, lightblue, darkgreen);
+    "
+  >
+    <div class="container-fluid">
+      <div class="row m-5">
+        <div class="col-4">
+          <!-- Back Button -->
+          <button
+            type="button"
+            class="btn btn-light round"
+            onclick="back()"
+            style="color: black"
+          >
+            &#8249;
+          </button>
+        </div>
+        <div class="col-8">
+          <!-- Back Button -->
+        </div>
+      </div>
+
+      <div class="row justify-content-center m-5">
+        <div class="col-8">
+          <!-- Country Name -->
+          <h1 id="country_name" style="text-align: center"></h1>
+        </div>
+      </div>
+
+      <div class="row justify-content-center">
+        <div id="date_picker_div" class="col-6">
+          <!-- Date Slider -->
+          <div
+            class="alert alert-dark fade show"
+            style="
+              align-items: center;
+              justify-content: center;
+              display: flex;
+              flex-direction: column;
+            "
+          >
+            <label id="current_year_label" class="h5">Current Year: 2005</label>
+            <input
+              type="range"
+              class="form-range"
+              min="2005"
+              max="2021"
+              step="1"
+              id="year_selector"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="row justify-content-center m-5"
+        id="no_data_div"
+        style="display: none; text-align: center"
+      >
+        <h1>No data for this year</h1>
+      </div>
+      <div class="row justify-content-center m-5" id="infographics_div">
+        <!-- Infographics -->
+
+        <div class="col-2" id="smiley_column_div" style="padding: 0">
+          <div class="row" style="text-align: center; justify-content: center">
+            <h4>
+              <span class="label label-default">Life Ladder infographic</span>
+            </h4>
+            <button
+              type="button"
+              style="color: white; width: auto"
+              class="btn btn-info mb-3"
+              onclick="showHiddenAttributeTable('happiness_description')"
+            >
+              See description
+            </button>
+          </div>
+          <div class="row">
+            <!-- Smiley Face -->
+            <svg id="smiley_face_container" class="smily_face">
+              <ellipse id="face" />
+              <ellipse id="left_eye" />
+              <ellipse id="right_eye" />
+              <path id="smile" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="col-4 justify-content-center" style="padding: 0">
+          <div class="row" style="text-align: center; justify-content: center">
+            <h4>
+              <span class="label label-default">Societal factors selector</span>
+            </h4>
+            <button
+              type="button"
+              style="color: white; width: auto"
+              class="btn btn-info mb-3"
+              onclick="showHiddenAttributeTable('s_factor_description')"
+            >
+              See description
+            </button>
+          </div>
+          <div class="row">
+            <!-- Dataset Attribute Selectors -->
+            <svg id="societal_factor_selector" class="treeMap">
+              <g></g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="col-4 justify-content-center" style="padding: 0">
+          <div class="row" style="text-align: center; justify-content: center">
+            <h4>
+              <span class="label label-default">Personal factors selector</span>
+            </h4>
+            <button
+              type="button"
+              style="color: white; width: auto"
+              class="btn btn-info mb-3"
+              onclick="showHiddenAttributeTable('p_factor_description')"
+            >
+              See description
+            </button>
+          </div>
+          <div class="row">
+            <!-- Dataset Attribute Selectors -->
+            <svg id="personal_factor_selector" class="treeMap">
+              <g></g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Effectiveness -->
+        <div
+          class="col-2"
+          id="effectiveness_column_div"
+          style="padding: 0; position: relative"
+        >
+          <div class="row" style="text-align: center; justify-content: center">
+            <h4>
+              <span class="label label-default"
+                >Government Effectiveness infographic</span
+              >
+            </h4>
+            <button
+              type="button"
+              style="color: white; width: auto"
+              class="btn btn-info mb-3"
+              onclick="showHiddenAttributeTable('effectiveness_description')"
+            >
+              See description
+            </button>
+          </div>
+          <div
+            id="effectiveness_flag_filter"
+            style="
+              z-index: 2;
+              background-color: black;
+              position: absolute;
+              opacity: 0.6;
+              border-bottom: dashed white;
+            "
+          ></div>
+          <img
+            src=""
+            onload="drawFlagDynamic()"
+            alt="No flag found"
+            id="effectiveness_flag"
+            style="z-index: 1; position: absolute; object-fit: cover"
+          />
+        </div>
+      </div>
+
+      <div
+        class="row justify-content-center m-5"
+        id="infographic_descriptions_div"
+      >
+        <!-- Infographic descriptions -->
+
+        <div class="col-2" style="padding: 0; text-align: center">
+          <table
+            id="happiness_description"
+            class="table table-striped table-dark mt-3"
+            style="display: none; padding-left: 5%; padding-right: 5%"
+          >
+            <thead>
+              <tr>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="width: 70%">
+                  The expression of the face represents the life ladder value
+                  for the current year for this country. A downturned mouth
+                  represents a value less than the global average, while a smile
+                  represents a value greater than the global average.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          class="col-4 justify-content-center"
+          style="padding: 0; text-align: center"
+        >
+          <table
+            id="s_factor_description"
+            class="table table-striped table-dark mt-3"
+            style="display: none; padding-left: 5%; padding-right: 5%"
+          >
+            <thead>
+              <tr>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="width: 70%">
+                  The <b>Societal factors selector</b> is an interactable
+                  selector for choosing which societal factors to plot on the
+                  Graph of selected Societal and Personal factors over time. The
+                  size of the circles represent the values of the represented
+                  attributes for the current country and year. The colour of the
+                  selected circles correspond with the colour of the line on the
+                  graph representing the chosen attribute.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          class="col-4 justify-content-center"
+          style="padding: 0; text-align: center"
+        >
+          <table
+            id="p_factor_description"
+            class="table table-striped table-dark mt-3"
+            style="display: none; padding-left: 5%; padding-right: 5%"
+          >
+            <thead>
+              <tr>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="width: 70%">
+                  The <b>Personal factors selector</b> is an interactable
+                  selector for choosing which personal factors to plot on the
+                  Graph of selected Societal and Personal factors over time. The
+                  size of the circles represent the values of the represented
+                  attributes for the current country and year. The colour of the
+                  selected circles correspond with the colour of the line on the
+                  graph representing the chosen attribute.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          class="col-2"
+          style="padding: 0; text-align: center; justify-content: center"
+        >
+          <table
+            id="effectiveness_description"
+            class="table table-striped table-dark mt-3"
+            style="display: none; padding-left: 5%; padding-right: 5%"
+          >
+            <thead>
+              <tr>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="width: 70%">
+                  The non-shaded area (below the dotted line) of the flag
+                  represents the percieved government effectiveness for this
+                  country, for the current year compared to the global average.
+                  A flag that is more than half shaded represents a percieved
+                  government effectiveness less than the global average, while
+                  less than half shaded represents a percieved government
+                  effectiveness greater than the global average. <br />Flags
+                  sourced from Flagpedia https://flagpedia.net/.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row justify-content-center mb-5" id="graph_container_div">
+        <div class="row" style="text-align: center">
+          <h4 id="graph_title">No factors selected, graph hidden</h4>
+        </div>
+        <div class="col-8">
+          <!-- Comparison Graph -->
+          <div
+            style="display: flex; flex-direction: row; justify-content: center"
+            id="graph_div"
+          >
+            <svg id="comparison_graph"></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Link to Datasources -->
+      <div class="row justify-content-center mb-5">
+        <div class="col-8" style="background-color: aliceblue">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Dataset Name</th>
+                <th scope="col">Summary</th>
+                <th scope="col">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Happiness Report -->
+              <tr>
+                <th scope="row">1</th>
+                <td style="width: 20%">World Happiness Report</td>
+                <td style="width: 60%">
+                  The World Happiness Report is a publication that contains
+                  articles and rankings of national happiness, based on
+                  respondent ratings of their own lives, which the report also
+                  correlates with various (quality of) life factors (2005 -
+                  2021).
+
+                  <br /><br />
+
+                  <button
+                    type="button"
+                    style="color: white"
+                    class="btn btn-info mb-3"
+                    onclick="showHiddenAttributeTable('happiness_table')"
+                  >
+                    See Relevant Data Attributes
+                  </button>
+
+                  <table
+                    id="happiness_table"
+                    class="table table-striped mt-3 table-dark"
+                    style="display: none"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Attribute Name</th>
+                        <th scope="col">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Per Attribute -->
+                      <tr>
+                        <th scope="row">1</th>
+                        <td style="width: 30%">Life Ladder</td>
+                        <td style="width: 70%">
+                          A normalised 0-1 scale of worst to best possible life
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">2</th>
+                        <td style="width: 30%">Log GDP</td>
+                        <td style="width: 70%">
+                          A normalised 0-1 scale of purchasing power per person,
+                          relative to other countries
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">3</th>
+                        <td style="width: 30%">Freedom to make life choices</td>
+                        <td style="width: 70%">
+                          A 0-1 mean value representing the the satisfaction of
+                          a person with their freedom to make life choices, with
+                          0 being unsatisfied, and 1 being satisfied
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">4</th>
+                        <td style="width: 30%">
+                          Healthy life expectancy at birth
+                        </td>
+                        <td style="width: 70%">
+                          A normalised 0-1 scale of life expectancy, relative to
+                          other countries
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td style="width: 20%">
+                  <a
+                    href="https://worldhappiness.report/"
+                    class="btn btn-primary"
+                  >
+                    Go to Source
+                  </a>
+                </td>
+              </tr>
+
+              <!-- World Bank -->
+              <tr>
+                <th scope="row">2</th>
+                <td style="width: 20%">World Bank</td>
+                <td style="width: 60%">
+                  The Worldwide Governance Indicators (WGI) project reports
+                  aggregate and individual governance indicators for over 200
+                  countries and territories over the period 1996–2021, for six
+                  dimensions of governance.
+
+                  <br /><br />
+
+                  <button
+                    type="button"
+                    style="color: white"
+                    class="btn btn-info mb-3"
+                    onclick="showHiddenAttributeTable('world_bank_table')"
+                  >
+                    See Relevant Data Attributes
+                  </button>
+
+                  <table
+                    id="world_bank_table"
+                    class="table table-striped table-dark mt-3"
+                    style="display: none"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Attribute Name</th>
+                        <th scope="col">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Per Attribute -->
+                      <tr>
+                        <th scope="row">1</th>
+                        <td style="width: 30%">Government Effectiveness</td>
+                        <td style="width: 70%">
+                          Estimate of the perceptions of the quality of public
+                          services, the quality of the civil service and the
+                          degree of its independence from political pressures,
+                          the quality of policy formulation and implementation,
+                          and the credibility of the government's commitment to
+                          such policies. Normalised between 0 and 1.
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">2</th>
+                        <td style="width: 30%">Rule Of Law</td>
+                        <td style="width: 70%">
+                          Estimate of the perceptions of the extent to which
+                          agents have confidence in and abide by the rules of
+                          society, and in particular the quality of contract
+                          enforcement, property rights, the police, and the
+                          courts, as well as the likelihood of crime and
+                          violence. Normalised between 0 and 1.
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">3</th>
+                        <td style="width: 30%">Regulator Quality</td>
+                        <td style="width: 70%">
+                          Captures perceptions of the ability of the government
+                          to formulate and implement sound policies and
+                          regulations that permit and promote private sector
+                          development. Normalised between 0 and 1.
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">4</th>
+                        <td style="width: 30%">Voice and Accountability</td>
+                        <td style="width: 70%">
+                          Estimate of the perceptions of the extent to which a
+                          country's citizens are able to participate in
+                          selecting their government, as well as freedom of
+                          expression, freedom of association, and a free media.
+                          Normalised between 0 and 1.
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">5</th>
+                        <td style="width: 30%">Political Stability</td>
+                        <td style="width: 70%">
+                          Estimate of perceptions of the likelihood of political
+                          instability and/or politically-motivated violence,
+                          including terrorism. Normalised between 0 and 1.
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">6</th>
+                        <td style="width: 30%">Control of Corruption</td>
+                        <td style="width: 70%">
+                          Estimate of the perceptions of the extent to which
+                          public power is exercised for private gain, including
+                          both petty and grand forms of corruption, as well as
+                          "capture" of the state by elites and private
+                          interests. Normalised between 0 and 1.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td style="width: 20%">
+                  <a
+                    href="https://info.worldbank.org/governance/wgi/"
+                    class="btn btn-primary"
+                  >
+                    Go to Source
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Content -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- start of JavaScript code -->
+    <script
+      type="text/javascript"
+      src="../js/homepage/data_cleaning.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/individualCountry/data_processing.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/individualCountry/individualCountry.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/individualCountry/dataKeyHandling.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/individualCountry/drawHelperFunctions.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/individualCountry/infographics.js"
+    ></script>
+  </body>
+</html>
